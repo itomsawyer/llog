@@ -35,11 +35,11 @@ const (
 var levelPrefix = [Lcritical + 1]string{"[S] ", "[F] ", "[D] ", "[T] ", "[I] ", "[W] ", "[E] ", "[C] "}
 
 type Config struct {
-	OutputFile string
-	MaxSize    int    // megabytes after which new file is created
-	MaxBackups int    // number of backups
-	MaxAge     int    // max keep days
-	Level      string // log level
+	OutputFile string `toml:"file"`
+	MaxSize    int    `toml:"max_size_mb"` // megabytes after which new file is created
+	MaxBackups int    `toml:"max_backups"` // number of backups
+	MaxAge     int    `toml:"max_age"`     // max keep days
+	Level      string `toml:"level"`       // log level
 }
 
 type Logger struct {
@@ -65,8 +65,7 @@ func (l *Logger) Finest(format string, args ...interface{}) {
 		return
 	}
 
-	f, a := callerSource(format, args)
-	l.Printf(f, a...)
+	l.Printf(levelPrefix[Lfinest]+format, args...)
 }
 
 func (l *Logger) Fine(format string, args ...interface{}) {
@@ -74,8 +73,15 @@ func (l *Logger) Fine(format string, args ...interface{}) {
 		return
 	}
 
-	f, a := callerSource(format, args)
-	l.Printf(f, a...)
+	l.Printf(levelPrefix[Lfine]+format, args...)
+}
+
+func (l *Logger) Trace(format string, args ...interface{}) {
+	if l.level > Ltrace {
+		return
+	}
+
+	l.Printf(levelPrefix[Ltrace]+format, args...)
 }
 
 func (l *Logger) Debug(format string, args ...interface{}) {
@@ -83,8 +89,7 @@ func (l *Logger) Debug(format string, args ...interface{}) {
 		return
 	}
 
-	f, a := callerSource(format, args)
-	l.Printf(f, a...)
+	l.Printf(levelPrefix[Ldebug]+format, args...)
 }
 
 func (l *Logger) Info(format string, args ...interface{}) {
@@ -92,8 +97,7 @@ func (l *Logger) Info(format string, args ...interface{}) {
 		return
 	}
 
-	f, a := callerSource(format, args)
-	l.Printf(f, a...)
+	l.Printf(levelPrefix[Linfo]+format, args...)
 }
 
 func (l *Logger) Warn(format string, args ...interface{}) {
@@ -101,8 +105,7 @@ func (l *Logger) Warn(format string, args ...interface{}) {
 		return
 	}
 
-	f, a := callerSource(format, args)
-	l.Printf(f, a...)
+	l.Printf(levelPrefix[Lerr]+format, args...)
 }
 
 func (l *Logger) Error(format string, args ...interface{}) {
@@ -110,8 +113,7 @@ func (l *Logger) Error(format string, args ...interface{}) {
 		return
 	}
 
-	f, a := callerSource(format, args)
-	l.Printf(f, a...)
+	l.Printf(levelPrefix[Lerr]+format, args...)
 }
 
 func (l *Logger) Critical(format string, args ...interface{}) {
@@ -119,8 +121,7 @@ func (l *Logger) Critical(format string, args ...interface{}) {
 		return
 	}
 
-	f, a := callerSource(format, args)
-	l.Printf(f, a...)
+	l.Printf(levelPrefix[Lcritical]+format, args...)
 }
 
 func (l *Logger) SetLevel(level string) error {
@@ -132,6 +133,19 @@ func (l *Logger) SetLevel(level string) error {
 	l.level = lv
 	l.SetPrefix(levelPrefix[lv])
 	return nil
+}
+
+func (l *Logger) Logf(level int, format string, args ...interface{}) {
+	if l.level > level {
+		return
+	}
+
+	l.Printf(levelPrefix[level]+format, args...)
+}
+
+func NewDefaultLogger() *Logger {
+	l, _ := New(Config{OutputFile: "stdout", Level: "debug"}, log.Lshortfile)
+	return l
 }
 
 func New(lc Config, flag int) (*Logger, error) {
