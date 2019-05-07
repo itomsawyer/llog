@@ -61,7 +61,7 @@ func (l *Logger) Close() error {
 }
 
 func (l *Logger) Finest(format string, args ...interface{}) {
-	if l.level > Lfinest {
+	if l.Logger == nil || l.level > Lfinest {
 		return
 	}
 
@@ -69,7 +69,7 @@ func (l *Logger) Finest(format string, args ...interface{}) {
 }
 
 func (l *Logger) Fine(format string, args ...interface{}) {
-	if l.level > Lfine {
+	if l.Logger == nil || l.level > Lfine {
 		return
 	}
 
@@ -77,7 +77,7 @@ func (l *Logger) Fine(format string, args ...interface{}) {
 }
 
 func (l *Logger) Trace(format string, args ...interface{}) {
-	if l.level > Ltrace {
+	if l.Logger == nil || l.level > Ltrace {
 		return
 	}
 
@@ -85,7 +85,7 @@ func (l *Logger) Trace(format string, args ...interface{}) {
 }
 
 func (l *Logger) Debug(format string, args ...interface{}) {
-	if l.level > Ldebug {
+	if l.Logger == nil || l.level > Ldebug {
 		return
 	}
 
@@ -93,7 +93,7 @@ func (l *Logger) Debug(format string, args ...interface{}) {
 }
 
 func (l *Logger) Info(format string, args ...interface{}) {
-	if l.level > Linfo {
+	if l.Logger == nil || l.level > Linfo {
 		return
 	}
 
@@ -101,7 +101,7 @@ func (l *Logger) Info(format string, args ...interface{}) {
 }
 
 func (l *Logger) Warn(format string, args ...interface{}) {
-	if l.level > Lwarn {
+	if l.Logger == nil || l.level > Lwarn {
 		return
 	}
 
@@ -109,7 +109,7 @@ func (l *Logger) Warn(format string, args ...interface{}) {
 }
 
 func (l *Logger) Error(format string, args ...interface{}) {
-	if l.level > Lerr {
+	if l.Logger == nil || l.level > Lerr {
 		return
 	}
 
@@ -117,7 +117,7 @@ func (l *Logger) Error(format string, args ...interface{}) {
 }
 
 func (l *Logger) Critical(format string, args ...interface{}) {
-	if l.level > Lcritical {
+	if l.Logger == nil || l.level > Lcritical {
 		return
 	}
 
@@ -131,12 +131,11 @@ func (l *Logger) SetLevel(level string) error {
 	}
 
 	l.level = lv
-	l.SetPrefix(levelPrefix[lv])
 	return nil
 }
 
 func (l *Logger) Logf(level int, format string, args ...interface{}) {
-	if l.level > level {
+	if l.Logger == nil || l.level > level {
 		return
 	}
 
@@ -148,21 +147,28 @@ func NewDefaultLogger() *Logger {
 	return l
 }
 
+func NewEmptyLogger() *Logger {
+	l, _ := New(Config{OutputFile: "nil", Level: "debug"}, log.Lshortfile)
+	return l
+}
+
 func New(lc Config, flag int) (*Logger, error) {
-	flag = flag | log.LstdFlags
+	if flag == 0 {
+		flag = log.LstdFlags
+	}
 
 	lv, ok := LogLevel[lc.Level]
 	if !ok {
 		return nil, fmt.Errorf("log level is invalid")
 	}
 
-	prefix := levelPrefix[lv]
-
 	switch lc.OutputFile {
 	case "stdout":
-		return &Logger{log.New(os.Stdout, prefix, flag), lv, nil}, nil
+		return &Logger{log.New(os.Stdout, "", flag), lv, nil}, nil
 	case "stderr":
-		return &Logger{log.New(os.Stderr, prefix, flag), lv, nil}, nil
+		return &Logger{log.New(os.Stderr, "", flag), lv, nil}, nil
+	case "nil":
+		return &Logger{log.New(nil, "", flag), lv, nil}, nil
 	case "":
 		return nil, fmt.Errorf("output file cannot be nil")
 	default:
@@ -173,7 +179,7 @@ func New(lc Config, flag int) (*Logger, error) {
 		file.Close()
 	}
 
-	lg := &Logger{log.New(nil, prefix, flag), lv, nil}
+	lg := &Logger{log.New(nil, "", flag), lv, nil}
 	lj := &lumberjack.Logger{
 		Filename:   lc.OutputFile,
 		MaxSize:    lc.MaxSize,    // megabytes after which new file is created
