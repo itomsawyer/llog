@@ -42,6 +42,10 @@ type Config struct {
 	Level      string `toml:"level"`       // log level
 }
 
+func DefaultConfig() Config {
+	return Config{OutputFile: "stdout", Level: "debug"}
+}
+
 type Logger struct {
 	*log.Logger
 	level  int
