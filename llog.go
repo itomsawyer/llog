@@ -3,6 +3,7 @@ package llog
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"runtime"
@@ -172,7 +173,7 @@ func New(lc Config, flag int) (*Logger, error) {
 	case "stderr":
 		return &Logger{log.New(os.Stderr, "", flag), lv, nil}, nil
 	case "nil":
-		return &Logger{log.New(nil, "", flag), lv, nil}, nil
+		return &Logger{log.New(ioutil.Discard, "", flag), lv, nil}, nil
 	case "":
 		return nil, fmt.Errorf("output file cannot be nil")
 	default:
