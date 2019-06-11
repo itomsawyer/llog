@@ -49,8 +49,12 @@ func DefaultConfig() Config {
 
 type Logger struct {
 	*log.Logger
-	level  int
-	Closer io.WriteCloser
+	level int
+	io.WriteCloser
+}
+
+func (l *Logger) Writer() io.Writer {
+	return l.WriteCloser
 }
 
 func (l *Logger) Level() int {
@@ -58,8 +62,8 @@ func (l *Logger) Level() int {
 }
 
 func (l *Logger) Close() error {
-	if l.Closer != nil {
-		return l.Closer.Close()
+	if l.WriteCloser != nil {
+		return l.WriteCloser.Close()
 	}
 
 	return nil
@@ -193,7 +197,7 @@ func New(lc Config, flag int) (*Logger, error) {
 		LocalTime:  true,
 	}
 	lg.SetOutput(lj)
-	lg.Closer = lj
+	lg.WriteCloser = lj
 
 	return lg, nil
 }
