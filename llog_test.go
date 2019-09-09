@@ -1,6 +1,7 @@
 package llog
 
 import (
+	"log"
 	"testing"
 )
 
@@ -10,7 +11,7 @@ func TestNewConsoleLog(t *testing.T) {
 		Level:      "debug",
 	}
 
-	lg, err := New(lc, 0)
+	lg, err := New(lc, log.LstdFlags|log.Lshortfile)
 	if err != nil {
 		t.Error(err)
 	}

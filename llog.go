@@ -74,7 +74,7 @@ func (l *Logger) Finest(format string, args ...interface{}) {
 		return
 	}
 
-	l.Printf(levelPrefix[Lfinest]+format, args...)
+	l.Output(2, fmt.Sprintf(levelPrefix[Lfinest]+format, args...))
 }
 
 func (l *Logger) Fine(format string, args ...interface{}) {
@@ -82,7 +82,7 @@ func (l *Logger) Fine(format string, args ...interface{}) {
 		return
 	}
 
-	l.Printf(levelPrefix[Lfine]+format, args...)
+	l.Output(2, fmt.Sprintf(levelPrefix[Lfine]+format, args...))
 }
 
 func (l *Logger) Trace(format string, args ...interface{}) {
@@ -90,7 +90,7 @@ func (l *Logger) Trace(format string, args ...interface{}) {
 		return
 	}
 
-	l.Printf(levelPrefix[Ltrace]+format, args...)
+	l.Output(2, fmt.Sprintf(levelPrefix[Ltrace]+format, args...))
 }
 
 func (l *Logger) Debug(format string, args ...interface{}) {
@@ -98,7 +98,7 @@ func (l *Logger) Debug(format string, args ...interface{}) {
 		return
 	}
 
-	l.Printf(levelPrefix[Ldebug]+format, args...)
+	l.Output(2, fmt.Sprintf(levelPrefix[Ldebug]+format, args...))
 }
 
 func (l *Logger) Info(format string, args ...interface{}) {
@@ -106,7 +106,7 @@ func (l *Logger) Info(format string, args ...interface{}) {
 		return
 	}
 
-	l.Printf(levelPrefix[Linfo]+format, args...)
+	l.Output(2, fmt.Sprintf(levelPrefix[Linfo]+format, args...))
 }
 
 func (l *Logger) Warn(format string, args ...interface{}) {
@@ -114,7 +114,7 @@ func (l *Logger) Warn(format string, args ...interface{}) {
 		return
 	}
 
-	l.Printf(levelPrefix[Lerr]+format, args...)
+	l.Output(2, fmt.Sprintf(levelPrefix[Lerr]+format, args...))
 }
 
 func (l *Logger) Error(format string, args ...interface{}) {
@@ -122,7 +122,7 @@ func (l *Logger) Error(format string, args ...interface{}) {
 		return
 	}
 
-	l.Printf(levelPrefix[Lerr]+format, args...)
+	l.Output(2, fmt.Sprintf(levelPrefix[Lerr]+format, args...))
 }
 
 func (l *Logger) Critical(format string, args ...interface{}) {
@@ -130,7 +130,7 @@ func (l *Logger) Critical(format string, args ...interface{}) {
 		return
 	}
 
-	l.Printf(levelPrefix[Lcritical]+format, args...)
+	l.Output(2, fmt.Sprintf(levelPrefix[Lcritical]+format, args...))
 }
 
 func (l *Logger) SetLevel(level string) error {
@@ -148,7 +148,7 @@ func (l *Logger) Logf(level int, format string, args ...interface{}) {
 		return
 	}
 
-	l.Printf(levelPrefix[level]+format, args...)
+	l.Output(2, fmt.Sprintf(levelPrefix[level]+format, args...))
 }
 
 func NewDefaultLogger() *Logger {
